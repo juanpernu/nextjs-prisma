@@ -1,9 +1,12 @@
 import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router'
 import { prisma } from 'lib/prisma';
 import { Feedback, FeedbackType } from '.prisma/client';
-import Link from 'next/link';
 
 export default function FeedbackPage({ feedback }) {
+  const router = useRouter();
+
   const formatFeedbackType = (feedback: FeedbackType) => {
     switch (feedback) {
       case 'FEEDBACK':
@@ -14,6 +17,11 @@ export default function FeedbackPage({ feedback }) {
         return 'bg-red-400 text-red-800';
     }
   };
+
+  function handleOnClick(id) {
+    router.push(`/feedback/${id}`);
+  }
+
   return (
     <div>
       <Head>
@@ -61,14 +69,14 @@ export default function FeedbackPage({ feedback }) {
                     </thead>
                     <tbody className="bg-gray-700 divide-y divide-gray-500">
                       {feedback.map((item: Feedback) => (
-                        <tr key={item.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                        <tr className="bg-gray-900 hover:bg-yellow-100 hover:cursor-pointer group" key={item.id} onClick={() => handleOnClick(item.id)}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white group-hover:text-gray-900">
                             {item.name}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white group-hover:text-gray-900">
                             <a href={`mailto:${item.email}`}>{item.email}</a>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white truncate">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white truncate group-hover:text-gray-900">
                             <Link href={`/feedback/${item.id}`}>
                               {item.message}
                             </Link>
@@ -107,7 +115,6 @@ export const getServerSideProps = async () => {
     },
   });
 
-  console.log(feedback);
   return {
     props: {
       feedback,
